@@ -1,3 +1,13 @@
+forked from 
+github/prideout
+
+modifying for blender sverchok see
+
+http://elfnor.com/structure-synth-meets-sverchok-generative-art-inside-blender.html
+
+and the README.md under Blender sub directory
+
+
 # About
 
 Just some L-System stuff I've been hacking on in C++, Python, and Go.
