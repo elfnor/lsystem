@@ -122,69 +122,45 @@ Library["SpiralsBumpy"] = """
 </rules>
 """
 
-Library["ManyBranches"] = """
-<rules max_depth="40">
+Library["Ball"] = """
+<rules max_depth="2000">
     <rule name="entry">
         <call rule="R1"/>
     </rule>
     <rule name="R1" weight = "10">
-        <call transforms="tz 0.6 rx 5 ry 5 sa 0.99" rule="R1"/>
-        <instance shape="box"/>
+        <call transforms="tx 1 rz 5 ry 2" rule="R1"/>
+        <instance transforms="sa 3 ry 90" shape="box"/>
     </rule>
-    <rule name="R1" weight="1">
-        <call transforms="rx 10 rz 20" rule="R1"/>
-        <call transforms="ry 20" rule="R1"/>
+    <rule name="R1" weight = "10">
+        <call transforms="tx 1 rz -5 ry 2" rule="R1"/>
+        <instance transforms="sa 3 ry 90" shape="box"/>
     </rule>
-</rules>
-"""
-
-Library["ArcSphere"] = """
-<rules max_depth="40">
-    <rule name="entry">
-        <call count="7" transforms="s 0.9 tx -2 ty 0.5" rule="R1"/>
-    </rule>
-    
-    <rule name="R1" weight = "40">
-        <call rule="ubox"/>
-        <call rule="dbox"/>
-        <call transforms="tx 1 ry 3" rule="R1"/>
-    </rule>
-    
-    <rule name="R1" weight = "14">
-        <call rule="R2"/>
-    </rule>
-    
-    <rule name="R2" weight="10">
-        <call transforms="tx 1 ry 3" rule="R2"/>
-    </rule>
-    
-    <rule name="R2" weight="1">
-        <call rule="R1"/>
-    </rule>
-    
-    <rule name="dbox" weight="8" maxdepth="15">
-        <call transforms="ty -1 rx 2.9" rule="dbox"/>
-        <call rule="sbox"/>
-    </rule> 
-    
-    <rule name="dbox">
-    </rule> 
-    
-    <rule name="ubox" weight="8" maxdepth="15">
-        <call transforms="ty 1 rx -2.9" rule="ubox"/>
-        <call rule="sbox"/>
-    </rule> 
         
-    <rule name="ubox">
-    </rule>   
-  
-    <rule name="sbox">
-        <instance transforms="s 1.2 1.2 0.6 ry 5" shape="box"/> 
-    </rule>   
-    
-
 </rules>
 """
 
+Library["Fern"] = """
+<rules max_depth="2000">
+    <rule name="entry">
+        <call  rule="curl1" />  
+        <call  rule="curl2" />      
+    </rule>
+    
+    <rule name="curl1" max_depth="80">
+        <call transforms="rx 12.5 tz 0.9 s 0.98 0.95 1.0" rule="curl1"/>
+        <instance shape="box"/>        
+    </rule>
+    
+    <rule name="curl2" max_depth="80">
+        <call transforms="rx 12.5 tz 0.9 s 0.95 0.95 1.0" rule="curl2"/>
+        <call transforms="tx 0.1 ty -0.45 ry 40 sa 0.25" rule="curlsmall" />     
+    </rule>    
+    
+    <rule name="curlsmall" max_depth="80">
+        <call transforms="rx 25 tz 1.2 s 0.9 0.9 1.0" rule="curlsmall"/>
+        <instance shape="box"/>     
+    </rule>    
+</rules>
+"""
 
 Library["Default"] = Library["Tree"]
