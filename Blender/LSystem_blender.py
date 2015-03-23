@@ -60,8 +60,16 @@ class LSystem:
                 shapes.append(None)
                 continue
         
-            for statement in rule:
-                xform = _parseXform(statement.get("transforms", ""))
+            for statement in rule:              
+                tstr = statement.get("transforms","")
+                if not(tstr):
+                    tstr = ''
+                    for t in ['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sa', 'sx', 'sy', 'sz']:
+                        tvalue = statement.get(t)
+                        if tvalue:
+                            n = eval(tvalue)
+                            tstr += "{} {:f} ".format(t,n) 
+                xform = _parseXform(tstr)
                 count = int(statement.get("count", 1))
                 for n in range(count):
                     matrix *= xform
@@ -94,37 +102,39 @@ class LSystem:
         The ring dosen't have to be planar.
         outputs lists of vertices, edges and faces
         """
+        
         edges_out = []
         verts_out = [] 
         faces_out = []
         vID = 0
-        #print('len mats', len(mats))
-        #print(mats[0])
-        nring = len(verts[0])
-        #end face
-        faces_out.append(list(range(nring)))
-        for i,m in enumerate(mats):
-            for j,v in enumerate(verts[0]):
-                vout = mu.Matrix(m) * mu.Vector(v)
-                verts_out.append(vout.to_tuple())
-                vID = j + i*nring
-                #rings
-                if j != 0:
-                    edges_out.append([vID, vID - 1])
-                else: 
-                    edges_out.append([vID, vID + nring-1]) 
-                #lines
-                if i != 0:
-                    edges_out.append([vID, vID - nring]) 
-                    #faces
+        if len(mats) > 1:
+            #print('len mats', len(mats))
+            #print(mats[0])
+            nring = len(verts[0])
+            #end face
+            faces_out.append(list(range(nring)))
+            for i,m in enumerate(mats):
+                for j,v in enumerate(verts[0]):
+                    vout = mu.Matrix(m) * mu.Vector(v)
+                    verts_out.append(vout.to_tuple())
+                    vID = j + i*nring
+                    #rings
                     if j != 0:
-                        faces_out.append([vID, vID - nring, vID - nring - 1, vID-1,])
-                    else:
-                        faces_out.append([vID, vID - nring,  vID-1, vID + nring-1])
-        #end face
-        #reversing list fixes face normal direction keeps mesh manifold
-        f = list(range(vID, vID-nring, -1))
-        faces_out.append(f)
+                        edges_out.append([vID, vID - 1])
+                    else: 
+                        edges_out.append([vID, vID + nring-1]) 
+                    #lines
+                    if i != 0:
+                        edges_out.append([vID, vID - nring]) 
+                        #faces
+                        if j != 0:
+                            faces_out.append([vID, vID - nring, vID - nring - 1, vID-1,])
+                        else:
+                            faces_out.append([vID, vID - nring,  vID-1, vID + nring-1])
+            #end face
+            #reversing list fixes face normal direction keeps mesh manifold
+            f = list(range(vID, vID-nring, -1))
+            faces_out.append(f)
         return verts_out, edges_out, faces_out
                             
 def _pickRule(tree, name):
@@ -165,49 +175,49 @@ def _parseXform(xform_string):
     
             # Translation
             if command == 'tx':
-                x, t = float(tokens[t]), t + 1
+                x, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Translation(mu.Vector((x, 0, 0)))
             elif command == 'ty':
-                y, t = float(tokens[t]), t + 1
+                y, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Translation(mu.Vector((0, y, 0)))
             elif command == 'tz':
-                z, t = float(tokens[t]), t + 1
+                z, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Translation(mu.Vector((0, 0, z)))
             elif command == 't':
-                x, t = float(tokens[t]), t + 1
-                y, t = float(tokens[t]), t + 1
-                z, t = float(tokens[t]), t + 1
+                x, t = eval(tokens[t]), t + 1
+                y, t = eval(tokens[t]), t + 1
+                z, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Translation(mu.Vector((x, y, z)))
     
             # Rotation
             elif command == 'rx':
-                theta, t = _radians(float(tokens[t])), t + 1
+                theta, t = _radians(eval(tokens[t])), t + 1
                 matrix *= mu.Matrix.Rotation(theta, 4, 'X')
                 
             elif command == 'ry':
-                theta, t = _radians(float(tokens[t])), t + 1
+                theta, t = _radians(eval(tokens[t])), t + 1
                 matrix *= mu.Matrix.Rotation(theta, 4, 'Y')
             elif command == 'rz':
-                theta, t = _radians(float(tokens[t])), t + 1
+                theta, t = _radians(eval(tokens[t])), t + 1
                 matrix *= mu.Matrix.Rotation(theta, 4, 'Z')
     
             # Scale
             elif command == 'sx':
-                x, t = float(tokens[t]), t + 1
+                x, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Scale(x, 4, mu.Vector((1.0, 0.0, 0.0)))
             elif command == 'sy':
-                y, t = float(tokens[t]), t + 1
+                y, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Scale(y, 4, mu.Vector((0.0, 1.0, 0.0)))
             elif command == 'sz':
-                z, t = float(tokens[t]), t + 1
+                z, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Scale(z, 4, mu.Vector((0.0, 0.0, 1.0)))
             elif command == 'sa':
-                v, t = float(tokens[t]), t + 1
+                v, t = eval(tokens[t]), t + 1
                 matrix *= mu.Matrix.Scale(v, 4)
             elif command == 's':
-                x, t = float(tokens[t]), t + 1
-                y, t = float(tokens[t]), t + 1
-                z, t = float(tokens[t]), t + 1
+                x, t = eval(tokens[t]), t + 1
+                y, t = eval(tokens[t]), t + 1
+                z, t = eval(tokens[t]), t + 1
                 mx = mu.Matrix.Scale(x, 4, mu.Vector((1.0, 0.0, 0.0)))
                 my = mu.Matrix.Scale(y, 4, mu.Vector((0.0, 1.0, 0.0)))
                 mz = mu.Matrix.Scale(z, 4, mu.Vector((0.0, 0.0, 1.0)))
